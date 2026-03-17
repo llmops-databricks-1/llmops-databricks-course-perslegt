@@ -1,0 +1,23 @@
+resources:
+  jobs:
+    recipe_data_ingestion_job:
+      name: recipe-data-ingestion
+      tags:
+        project_name: "llmops-databricks-course-perslegt"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - ../dist/*.whl
+
+      tasks:
+        - task_key: ingest_recipes
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/recipe_data_ingestion.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
