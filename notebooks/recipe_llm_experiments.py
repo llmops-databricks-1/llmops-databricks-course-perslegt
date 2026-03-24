@@ -16,12 +16,21 @@ from urllib.request import Request, urlopen
 
 import pandas as pd
 
+from recipe_curator.config import get_env, load_config
+
 # COMMAND ----------
 
-CATALOG = "gfmnndipdapmlopsdev"
-SCHEMA = "per_slegt"
-CURATED_TABLE = f"{CATALOG}.{SCHEMA}.recipes_curated"
-MODEL_ENDPOINT = "databricks-gpt-oss-120b"
+spark_session = globals().get("spark")
+if spark_session is None:
+    raise RuntimeError("This notebook must run with a Spark session on Databricks.")
+
+env = get_env(spark_session)
+cfg = load_config("../project_config.yml", env)
+
+CATALOG = cfg.catalog
+SCHEMA = cfg.schema
+CURATED_TABLE = cfg.recipes_curated_table
+MODEL_ENDPOINT = cfg.llm_endpoint
 
 USER_INGREDIENTS = "chicken, rice, pepper"
 USER_QUERY = "I have chicken, rice, and pepper. What can I make?"
@@ -37,6 +46,12 @@ INGREDIENT_ALIASES = {
     "tomaat": "tomato",
     "linzen": "lentils",
 }
+
+try:
+    display  # type: ignore[name-defined]
+except NameError:
+    def display(value: Any) -> None:
+        print(value)
 
 
 def normalize_token(value: str) -> str:
@@ -161,10 +176,6 @@ def build_llm_messages(user_ingredients: str, user_goal: str, candidates: list[d
 
 
 # COMMAND ----------
-
-spark_session = globals().get("spark")
-if spark_session is None:
-    raise RuntimeError("This notebook must run with a Spark session on Databricks.")
 
 recipes_df = spark_session.table(CURATED_TABLE).toPandas()
 print(f"Loaded curated rows: {len(recipes_df)}")

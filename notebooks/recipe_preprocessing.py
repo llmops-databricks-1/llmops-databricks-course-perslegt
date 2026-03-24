@@ -11,10 +11,16 @@ import re
 
 import pandas as pd
 
+from recipe_curator.config import get_env, load_config
+
 # COMMAND ----------
 
-SOURCE_TABLE = "gfmnndipdapmlopsdev.per_slegt.recipes_raw"
-TARGET_TABLE = "gfmnndipdapmlopsdev.per_slegt.recipes_curated"
+spark_session = globals().get("spark")
+env = get_env(spark_session)
+cfg = load_config("../project_config.yml", env)
+
+SOURCE_TABLE = cfg.recipes_raw_table
+TARGET_TABLE = cfg.recipes_curated_table
 LOCAL_SOURCE_CSV = "data/recipes_raw.csv"
 LOCAL_TARGET_CSV = "data/recipes_curated.csv"
 
@@ -98,7 +104,6 @@ def build_recipe_text(name: str, category: str, area: str, tags: list[str], ingr
 
 
 def load_source_dataframe() -> pd.DataFrame:
-    spark_session = globals().get("spark")
     if spark_session is not None:
         print(f"Loading source table: {SOURCE_TABLE}")
         return spark_session.table(SOURCE_TABLE).toPandas()
@@ -169,9 +174,8 @@ os.makedirs("data", exist_ok=True)
 curated_df.to_csv(LOCAL_TARGET_CSV, index=False)
 print(f"Saved local CSV: {LOCAL_TARGET_CSV}")
 
-spark_session = globals().get("spark")
 if spark_session is not None:
-    spark_session.sql("CREATE SCHEMA IF NOT EXISTS gfmnndipdapmlopsdev.per_slegt")
+    spark_session.sql(f"CREATE SCHEMA IF NOT EXISTS {cfg.full_schema_name}")
     spark_df = spark_session.createDataFrame(curated_df)
     spark_df.write.mode("overwrite").saveAsTable(TARGET_TABLE)
     print(f"Saved Unity Catalog table: {TARGET_TABLE}")

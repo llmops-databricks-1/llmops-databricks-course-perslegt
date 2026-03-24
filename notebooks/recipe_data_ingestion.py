@@ -15,12 +15,20 @@ from urllib.request import urlopen
 
 import pandas as pd
 
+from recipe_curator.config import get_env, load_config
+
 # COMMAND ----------
+
+spark_session = globals().get("spark")
+env = get_env(spark_session)
+cfg = load_config("../project_config.yml", env)
 
 BASE_URL = "https://www.themealdb.com/api/json/v1/1"
 MAX_RECIPES = 300
 REQUEST_DELAY_SECONDS = 0.05
-TARGET_TABLE = "gfmnndipdapmlopsdev.per_slegt.recipes_raw"
+CATALOG = cfg.catalog
+SCHEMA = cfg.schema
+TARGET_TABLE = cfg.recipes_raw_table
 
 FALLBACK_MEALS = [
     {
@@ -226,11 +234,9 @@ local_output = "data/recipes_raw.csv"
 df.to_csv(local_output, index=False)
 print(f"Saved local CSV: {local_output}")
 
-spark_session = globals().get("spark")
-
 if spark_session is not None:
     spark_df = spark_session.createDataFrame(df)
-    spark_session.sql("CREATE SCHEMA IF NOT EXISTS gfmnndipdapmlopsdev.per_slegt")
+    spark_session.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.{SCHEMA}")
     spark_df.write.mode("overwrite").saveAsTable(TARGET_TABLE)
     print(f"Saved Unity Catalog table: {TARGET_TABLE}")
 else:
