@@ -9,11 +9,11 @@ variables:
     description: "Git SHA of the deployed commit"
     default: "local"
 
-artifacts:
-  default:
-    type: whl
-    build: uv build
-    path: .
+# artifacts:
+#   default:
+#     type: whl
+#     build: uv build
+#     path: .
 
 targets:
   dev:

@@ -9,8 +9,6 @@ resources:
         - environment_key: default
           spec:
             environment_version: "4"
-            dependencies:
-              - ../dist/*.whl
 
       tasks:
         - task_key: hello_world
