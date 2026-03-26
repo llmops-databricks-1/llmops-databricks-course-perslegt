@@ -62,7 +62,9 @@ def tokenize_ingredients(ingredients: list[str]) -> list[str]:
     return sorted(tokens)
 
 
-def derive_goal_tags(tokens: list[str], category: str, ingredient_count: int) -> list[str]:
+def derive_goal_tags(
+    tokens: list[str], category: str, ingredient_count: int
+) -> list[str]:
     tags: set[str] = set()
     token_set = set(tokens)
 
@@ -98,7 +100,13 @@ def derive_goal_tags(tokens: list[str], category: str, ingredient_count: int) ->
     return sorted(tags)
 
 
-def build_recipe_text(name: str, category: str, area: str, tags: list[str], ingredients: list[str]) -> str:
+def build_recipe_text(
+    name: str,
+    category: str,
+    area: str,
+    tags: list[str],
+    ingredients: list[str],
+) -> str:
     fields = [name, category, area, " ".join(tags), " ".join(ingredients)]
     return normalize_text(" ".join(field for field in fields if field))
 
@@ -156,7 +164,11 @@ for row in raw_df.fillna("").to_dict(orient="records"):
         }
     )
 
-curated_df = pd.DataFrame(records).drop_duplicates(subset=["recipe_id"]).reset_index(drop=True)
+curated_df = (
+    pd.DataFrame(records)
+    .drop_duplicates(subset=["recipe_id"])
+    .reset_index(drop=True)
+)
 print(curated_df.shape)
 curated_df.head(10)
 

@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
-import os
 import importlib
+import os
 from pathlib import Path
-from typing import Any
+
+ScalarValue = str | int | bool
+ConfigData = dict[str, object]
 
 _pydantic = importlib.import_module("pydantic")
 BaseModel = _pydantic.BaseModel

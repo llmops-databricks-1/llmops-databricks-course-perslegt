@@ -36,7 +36,9 @@ FALLBACK_MEALS = [
         "strMeal": "Chicken Rice Power Bowl",
         "strCategory": "Chicken",
         "strArea": "International",
-        "strInstructions": "Cook the rice, grill the chicken, and serve with spinach and yogurt.",
+        "strInstructions": (
+            "Cook the rice, grill the chicken, and serve with spinach and yogurt."
+        ),
         "strIngredient1": "Chicken Breast",
         "strMeasure1": "200g",
         "strIngredient2": "Rice",

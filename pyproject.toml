@@ -61,6 +61,7 @@ pythonpath = ["."]
 [tool.ruff]
 line-length = 90
 
+[tool.ruff.lint]
 select = [
     "F",    # pyflakes rules
     "E",    # pycodestyle error rules

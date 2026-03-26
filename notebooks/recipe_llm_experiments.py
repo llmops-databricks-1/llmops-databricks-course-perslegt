@@ -11,10 +11,10 @@ Flow:
 import json
 import os
 import re
-from typing import Any
 from urllib.request import Request, urlopen
 
 import pandas as pd
+from databricks.sdk import WorkspaceClient
 
 from recipe_curator.config import get_env, load_config
 
@@ -48,9 +48,9 @@ INGREDIENT_ALIASES = {
 }
 
 try:
-    display  # type: ignore[name-defined]
+    _ = display  # type: ignore[name-defined]
 except NameError:
-    def display(value: Any) -> None:
+    def display(value: object) -> None:
         print(value)
 
 
@@ -91,7 +91,7 @@ def ingredients_from_query(query: str) -> str:
     return ", ".join(unique)
 
 
-def stringify_llm_content(content: Any) -> str:
+def stringify_llm_content(content: object) -> str:
     if isinstance(content, str):
         return content
 
@@ -123,12 +123,16 @@ def goal_match_score(user_goal: str, recipe_goal_tags: set[str]) -> int:
     return 2 if user_goal in recipe_goal_tags else 0
 
 
-def compute_ranked_candidates(df: pd.DataFrame, user_ingredients: str, user_goal: str, top_k: int) -> pd.DataFrame:
+def compute_ranked_candidates(
+    df: pd.DataFrame, user_ingredients: str, user_goal: str, top_k: int
+) -> pd.DataFrame:
     user_tokens = parse_csv_tokens(user_ingredients)
     user_goal_token = normalize_token(user_goal)
 
     work_df = df.copy()
-    work_df["ingredient_token_set"] = work_df["ingredient_tokens"].fillna("").apply(parse_csv_tokens)
+    work_df["ingredient_token_set"] = work_df["ingredient_tokens"].fillna("").apply(
+        parse_csv_tokens
+    )
     work_df["goal_tag_set"] = work_df["goal_tags"].fillna("").apply(parse_csv_tokens)
 
     work_df["ingredient_overlap"] = work_df["ingredient_token_set"].apply(
@@ -148,7 +152,11 @@ def compute_ranked_candidates(df: pd.DataFrame, user_ingredients: str, user_goal
     return ranked.reset_index(drop=True)
 
 
-def build_llm_messages(user_ingredients: str, user_goal: str, candidates: list[dict[str, Any]]) -> list[dict[str, str]]:
+def build_llm_messages(
+    user_ingredients: str,
+    user_goal: str,
+    candidates: list[dict[str, object]],
+) -> list[dict[str, str]]:
     system_prompt = (
         "You are a sports nutrition recipe assistant. "
         "Recommend recipes grounded only in provided candidates. "
@@ -163,7 +171,10 @@ def build_llm_messages(user_ingredients: str, user_goal: str, candidates: list[d
             "format": "markdown",
             "rules": [
                 "Return top 3 recommendations.",
-                "For each recommendation include: name, short reason, and optional substitution.",
+                (
+                    "For each recommendation include: name, short reason, "
+                    "and optional substitution."
+                ),
                 "Keep total response under 220 words.",
             ],
         },
@@ -180,7 +191,9 @@ def build_llm_messages(user_ingredients: str, user_goal: str, candidates: list[d
 recipes_df = spark_session.table(CURATED_TABLE).toPandas()
 print(f"Loaded curated rows: {len(recipes_df)}")
 
-effective_ingredients = ingredients_from_query(USER_QUERY) if USER_QUERY.strip() else USER_INGREDIENTS
+effective_ingredients = (
+    ingredients_from_query(USER_QUERY) if USER_QUERY.strip() else USER_INGREDIENTS
+)
 print(f"Using ingredients: {effective_ingredients}")
 
 # COMMAND ----------
@@ -223,8 +236,6 @@ candidates_for_llm = ranked_df[
 ].to_dict(orient="records")
 
 messages = build_llm_messages(effective_ingredients, USER_GOAL, candidates_for_llm)
-
-from databricks.sdk import WorkspaceClient
 
 w = WorkspaceClient()
 host = w.config.host
