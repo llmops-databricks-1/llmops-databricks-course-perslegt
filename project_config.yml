@@ -1,0 +1,9 @@
+# Development environment
+dev:
+  catalog: gfmnndipdapmlopsdev
+  schema: per_slegt
+  volume: recipe_files
+  llm_endpoint: databricks-gpt-oss-120b
+  embedding_endpoint: databricks-gte-large-en
+  warehouse_id: 7077f4cb0e616c62
+  vector_search_endpoint: llmops_course_vs_endpoint

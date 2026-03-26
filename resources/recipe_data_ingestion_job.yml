@@ -1,7 +1,7 @@
 resources:
   jobs:
-    hello_world_job:
-      name: hello-world
+    recipe_data_ingestion_job:
+      name: recipe-data-ingestion
       tags:
         project_name: "llmops-databricks-course-perslegt"
 
@@ -11,10 +11,10 @@ resources:
             environment_version: "4"
 
       tasks:
-        - task_key: hello_world
+        - task_key: ingest_recipes
           environment_key: default
           notebook_task:
-            notebook_path: ../notebooks/hello_world.py
+            notebook_path: ../notebooks/recipe_data_ingestion.py
             base_parameters:
               env: ${bundle.target}
               git_sha: "${var.git_sha}"

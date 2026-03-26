@@ -9,16 +9,16 @@ variables:
     description: "Git SHA of the deployed commit"
     default: "local"
 
-artifacts:
-  default:
-    type: whl
-    build: uv build
-    path: .
+# artifacts:
+#   default:
+#     type: whl
+#     build: uv build
+#     path: .
 
 targets:
   dev:
     mode: development
     default: true
     workspace:
-      host: https://<your-databricks-workspace>
+      host: https://adb-2865973311782428.8.azuredatabricks.net
       root_path: /Workspace/Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}

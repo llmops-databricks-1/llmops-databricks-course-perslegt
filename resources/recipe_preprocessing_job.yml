@@ -1,9 +1,10 @@
 resources:
   jobs:
-    hello_world_job:
-      name: hello-world
+    recipe_preprocessing_job:
+      name: recipe-preprocessing
       tags:
         project_name: "llmops-databricks-course-perslegt"
+        use_case: "recipe_generation"
 
       environments:
         - environment_key: default
@@ -11,10 +12,10 @@ resources:
             environment_version: "4"
 
       tasks:
-        - task_key: hello_world
+        - task_key: preprocess_recipes
           environment_key: default
           notebook_task:
-            notebook_path: ../notebooks/hello_world.py
+            notebook_path: ../notebooks/recipe_preprocessing.py
             base_parameters:
               env: ${bundle.target}
               git_sha: "${var.git_sha}"
