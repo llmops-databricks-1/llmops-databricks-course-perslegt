@@ -93,6 +93,26 @@ chunks_df = elements_df.select(
     F.col("element")["bbox"].cast(T.StringType()).alias("bbox_json"),
 )
 
+# Build `content` column used for embedding:
+# - For figures/images: use description (richer text than bare filename)
+# - For all others: combine content + description if both present
+# This gives the embedding model enough context per chunk.
+chunks_df = chunks_df.withColumn(
+    "content",
+    F.when(
+        F.col("element_type").isin("figure", "image"),
+        F.coalesce(
+            F.col("description"),
+            F.col("content"),
+        ),
+    ).otherwise(
+        F.when(
+            F.col("description").isNotNull() & (F.trim(F.col("description")) != ""),
+            F.concat_ws(" | ", F.trim(F.col("content")), F.trim(F.col("description"))),
+        ).otherwise(F.col("content"))
+    ),
+).filter(F.col("content").isNotNull() & (F.trim(F.col("content")) != ""))
+
 # Add chunk_id as SHA256 of (file_path, element_id, content)
 chunks_with_id_df = chunks_df.withColumn(
     "chunk_id",

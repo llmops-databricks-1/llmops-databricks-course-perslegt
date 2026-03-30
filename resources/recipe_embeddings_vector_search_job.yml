@@ -1,0 +1,22 @@
+resources:
+  jobs:
+    recipe_embeddings_vector_search_job:
+      name: recipe-embeddings-vector-search
+      tags:
+        project_name: "llmops-databricks-course-perslegt"
+        use_case: "recipe_retrieval"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+
+      tasks:
+        - task_key: setup_recipe_vector_search
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/recipe_embeddings_vector_search.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
