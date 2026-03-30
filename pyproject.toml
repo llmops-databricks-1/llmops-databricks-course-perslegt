@@ -11,7 +11,7 @@ dependencies = [
     "pyarrow==22.0.0",
     "databricks-sdk==0.85.0",
     "pydantic==2.11.7",
-    # "loguru==0.7.3",
+    "loguru==0.7.3",
     # "python-dotenv==1.1.1",
     # "databricks-vectorsearch==0.63",
     # "openai==2.8.0",
