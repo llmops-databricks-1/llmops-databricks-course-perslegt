@@ -7,18 +7,15 @@
 # Setup & Configuration
 # Load required libraries and initialize Databricks connection
 
-import os
 import logging
-import pandas as pd
 from pathlib import Path
-from datetime import datetime
-import json
+
+import pandas as pd
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 try:
-    from databricks.sdk.service.compute import Policy
     from databricks.sdk import WorkspaceClient
     HAS_DATABRICKS_SDK = True
 except ImportError:
@@ -186,7 +183,11 @@ try:
     
     # Save to Delta table
     parsed_table_name = f"{CATALOG}.{SCHEMA}.parsed_recipes_raw"
-    parsed_df.write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(parsed_table_name)
+    (
+        parsed_df.write.mode("overwrite")
+        .option("overwriteSchema", "true")
+        .saveAsTable(parsed_table_name)
+    )
     logger.info(f"✅ Results saved to Delta table: {parsed_table_name}")
     
     # Also save a summary CSV

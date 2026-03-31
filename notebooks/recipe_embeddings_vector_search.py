@@ -22,7 +22,6 @@ from __future__ import annotations
 
 import os
 import time
-from typing import Any
 
 from pyspark.sql import SparkSession
 
@@ -91,21 +90,28 @@ print(f"User suffix for fallback resources: {USER_SUFFIX}")
 # COMMAND ----------
 
 
-def _get_nested(data: Any, *keys: str) -> Any:
-    current = data
+def _get_nested(data: dict[str, object], *keys: str) -> object | None:
+    current: object = data
     for key in keys:
         if isinstance(current, dict):
-            current = current.get(key)
+            current = current.get(key)  # type: ignore[assignment]
         else:
             return None
     return current
 
 
-def _wait_for_endpoint_online(client: VectorSearchClient, endpoint_name: str, timeout_seconds: int = 1200) -> None:
+def _wait_for_endpoint_online(
+    client: VectorSearchClient,
+    endpoint_name: str,
+    timeout_seconds: int = 1200,
+) -> None:
     start = time.time()
     while True:
         endpoint = client.get_endpoint(endpoint_name)
-        state = _get_nested(endpoint, "endpoint_status", "state") or _get_nested(endpoint, "status", "state")
+        endpoint_dict = endpoint if isinstance(endpoint, dict) else {}
+        state = _get_nested(endpoint_dict, "endpoint_status", "state") or _get_nested(
+            endpoint_dict, "status", "state"
+        )
         state_str = str(state).upper() if state is not None else "UNKNOWN"
 
         if state_str == "ONLINE":
@@ -113,30 +119,48 @@ def _wait_for_endpoint_online(client: VectorSearchClient, endpoint_name: str, ti
             return
 
         if state_str in {"FAILED", "ERROR"}:
-            raise RuntimeError(f"Endpoint '{endpoint_name}' failed with state: {state_str}")
+            raise RuntimeError(
+                f"Endpoint '{endpoint_name}' failed with state: {state_str}"
+            )
 
         elapsed = int(time.time() - start)
         if elapsed >= timeout_seconds:
-            raise TimeoutError(f"Timed out waiting for endpoint '{endpoint_name}' to become ONLINE.")
+            raise TimeoutError(
+                f"Timed out waiting for endpoint '{endpoint_name}' to become ONLINE."
+            )
 
-        print(f"Waiting for endpoint '{endpoint_name}'... state={state_str}, elapsed={elapsed}s")
+        print(
+            f"Waiting for endpoint '{endpoint_name}'... "
+            f"state={state_str}, elapsed={elapsed}s"
+        )
         time.sleep(20)
 
 
-def _wait_for_index_ready(index: Any, timeout_seconds: int = 1200) -> tuple[bool, str]:
+def _wait_for_index_ready(
+    index: object, timeout_seconds: int = 1200
+) -> tuple[bool, str]:
     start = time.time()
     while True:
+        if not hasattr(index, "describe"):
+            raise RuntimeError("Index object does not expose describe().")
         details = index.describe()
-        ready = _get_nested(details, "status", "ready")
-        detailed_state = _get_nested(details, "status", "detailed_state")
-        detailed_state_str = str(detailed_state).upper() if detailed_state is not None else "UNKNOWN"
+        details_dict = details if isinstance(details, dict) else {}
+        ready = _get_nested(details_dict, "status", "ready")
+        detailed_state = _get_nested(details_dict, "status", "detailed_state")
+        detailed_state_str = (
+            str(detailed_state).upper()
+            if detailed_state is not None
+            else "UNKNOWN"
+        )
 
         if ready is True or detailed_state_str in {"ONLINE", "READY"}:
             print("Vector index is READY.")
             return True, detailed_state_str
 
         if detailed_state_str in {"FAILED", "ERROR"}:
-            raise RuntimeError(f"Vector index failed with state: {detailed_state_str}")
+            raise RuntimeError(
+                f"Vector index failed with state: {detailed_state_str}"
+            )
 
         elapsed = int(time.time() - start)
         if elapsed >= timeout_seconds:
@@ -146,23 +170,53 @@ def _wait_for_index_ready(index: Any, timeout_seconds: int = 1200) -> tuple[bool
             )
             return False, detailed_state_str
 
-        print(f"Waiting for index readiness... state={detailed_state_str}, elapsed={elapsed}s")
+        print(
+            "Waiting for index readiness... "
+            f"state={detailed_state_str}, elapsed={elapsed}s"
+        )
         time.sleep(20)
 
 
-def _parse_vector_search_results(raw_results: dict[str, Any]) -> list[dict[str, Any]]:
-    columns = [col["name"] for col in raw_results.get("manifest", {}).get("columns", [])]
-    data_array = raw_results.get("result", {}).get("data_array", [])
-    return [dict(zip(columns, row, strict=False)) for row in data_array]
+def _parse_vector_search_results(
+    raw_results: dict[str, object],
+) -> list[dict[str, object]]:
+    manifest = raw_results.get("manifest", {})
+    result = raw_results.get("result", {})
+
+    columns: list[str] = []
+    if isinstance(manifest, dict):
+        raw_columns = manifest.get("columns", [])
+        if isinstance(raw_columns, list):
+            for col in raw_columns:
+                if isinstance(col, dict):
+                    col_name = col.get("name")
+                    if isinstance(col_name, str):
+                        columns.append(col_name)
+
+    data_array: list[object] = []
+    if isinstance(result, dict):
+        raw_data_array = result.get("data_array", [])
+        if isinstance(raw_data_array, list):
+            data_array = raw_data_array
+
+    parsed_rows: list[dict[str, object]] = []
+    for row in data_array:
+        if isinstance(row, list):
+            parsed_rows.append(dict(zip(columns, row, strict=False)))
+    return parsed_rows
 
 
 # COMMAND ----------
 
-valid_chunks_df = spark.table(CHUNKS_TABLE).where("content IS NOT NULL AND TRIM(content) <> ''")
+valid_chunks_df = spark.table(CHUNKS_TABLE).where(
+    "content IS NOT NULL AND TRIM(content) <> ''"
+)
 chunk_count = valid_chunks_df.count()
 
 if chunk_count == 0:
-    raise RuntimeError(f"No valid chunk rows found in {CHUNKS_TABLE}. Run chunking first.")
+    raise RuntimeError(
+        f"No valid chunk rows found in {CHUNKS_TABLE}. Run chunking first."
+    )
 
 print(f"Valid chunk rows available: {chunk_count}")
 
@@ -183,11 +237,18 @@ try:
     print(f"Endpoint '{resolved_endpoint}' already exists.")
 except Exception as endpoint_exc:
     endpoint_error_text = str(endpoint_exc).lower()
-    if any(token in endpoint_error_text for token in ["not authorized", "permission", "already exists"]):
+    if any(
+        token in endpoint_error_text
+        for token in ["not authorized", "permission", "already exists"]
+    ):
         resolved_endpoint = f"{VECTOR_SEARCH_ENDPOINT}_{USER_SUFFIX}"
-        resolved_index = f"{CATALOG}.{SCHEMA}.parsed_recipe_chunks_vs_index_{USER_SUFFIX}"
+        resolved_index = (
+            f"{CATALOG}.{SCHEMA}.parsed_recipe_chunks_vs_index_{USER_SUFFIX}"
+        )
         print(
-            f"Switching to user-scoped endpoint '{resolved_endpoint}' due to access/conflict on '{VECTOR_SEARCH_ENDPOINT}'."
+            "Switching to user-scoped endpoint "
+            f"'{resolved_endpoint}' due to access/conflict on "
+            f"'{VECTOR_SEARCH_ENDPOINT}'."
         )
 
     try:
@@ -247,10 +308,15 @@ if index_ready:
 
     for idx, row in enumerate(parsed_rows, start=1):
         content_preview = (row.get("content") or "")[:140]
-        print(f"{idx}. file={row.get('file_name')} type={row.get('element_type')} score={row.get('score')}")
+        print(
+            f"{idx}. file={row.get('file_name')} "
+            f"type={row.get('element_type')} "
+            f"score={row.get('score')}"
+        )
         print(f"   content={content_preview}")
 else:
     print(
         "Vector index setup request completed, but the index is not query-ready yet. "
-        f"Current state={index_state}. Re-run this notebook later to verify search results."
+        f"Current state={index_state}. Re-run this notebook later "
+        "to verify search results."
     )

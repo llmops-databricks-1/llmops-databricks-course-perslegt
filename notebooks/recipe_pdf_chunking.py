@@ -7,8 +7,8 @@ and writes each element as a chunk record with all metadata.
 
 from __future__ import annotations
 
-import os
 import json
+import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
@@ -39,7 +39,11 @@ def extract_elements_from_parsed(variant_json_str: str) -> list:
     try:
         if not variant_json_str:
             return []
-        parsed = json.loads(variant_json_str) if isinstance(variant_json_str, str) else variant_json_str
+        parsed = (
+            json.loads(variant_json_str)
+            if isinstance(variant_json_str, str)
+            else variant_json_str
+        )
         if isinstance(parsed, dict):
             doc = parsed.get("document", {})
             elements = doc.get("elements", []) if isinstance(doc, dict) else []
@@ -138,5 +142,9 @@ chunks_with_id_df.select(
 ).limit(10).show(truncate=False)
 
 # Write chunks to target table (one row per element)
-chunks_with_id_df.write.mode("overwrite").option("overwriteSchema", "true").saveAsTable(TARGET_TABLE)
+(
+    chunks_with_id_df.write.mode("overwrite")
+    .option("overwriteSchema", "true")
+    .saveAsTable(TARGET_TABLE)
+)
 print(f"✅ Saved {chunks_with_id_df.count()} chunk records to: {TARGET_TABLE}")

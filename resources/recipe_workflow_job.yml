@@ -1,0 +1,88 @@
+resources:
+  jobs:
+    recipe_workflow_job:
+      name: recipe-workflow
+      tags:
+        project_name: "llmops-databricks-course-perslegt"
+        use_case: "recipe_end_to_end_workflow"
+
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+
+      tasks:
+        - task_key: hello_world
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/hello_world.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
+
+        - task_key: ingest_recipes
+          depends_on:
+            - task_key: hello_world
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/recipe_data_ingestion.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
+
+        - task_key: preprocess_recipes
+          depends_on:
+            - task_key: ingest_recipes
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/recipe_preprocessing.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
+
+        - task_key: llm_recommendations
+          depends_on:
+            - task_key: preprocess_recipes
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/recipe_llm_experiments.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
+
+        - task_key: parse_recipe_pdfs
+          depends_on:
+            - task_key: hello_world
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/recipe_pdf_parsing.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
+
+        - task_key: chunk_recipe_pdfs
+          depends_on:
+            - task_key: parse_recipe_pdfs
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/recipe_pdf_chunking.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
+
+        - task_key: setup_recipe_vector_search
+          depends_on:
+            - task_key: chunk_recipe_pdfs
+          environment_key: default
+          notebook_task:
+            notebook_path: ../notebooks/recipe_embeddings_vector_search.py
+            base_parameters:
+              env: ${bundle.target}
+              git_sha: "${var.git_sha}"
+              run_id: "{{job.run_id}}"
