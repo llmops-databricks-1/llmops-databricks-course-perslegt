@@ -50,6 +50,7 @@ INGREDIENT_ALIASES = {
 try:
     _ = display  # type: ignore[name-defined]
 except NameError:
+
     def display(value: object) -> None:
         print(value)
 
@@ -130,8 +131,8 @@ def compute_ranked_candidates(
     user_goal_token = normalize_token(user_goal)
 
     work_df = df.copy()
-    work_df["ingredient_token_set"] = work_df["ingredient_tokens"].fillna("").apply(
-        parse_csv_tokens
+    work_df["ingredient_token_set"] = (
+        work_df["ingredient_tokens"].fillna("").apply(parse_csv_tokens)
     )
     work_df["goal_tag_set"] = work_df["goal_tags"].fillna("").apply(parse_csv_tokens)
 

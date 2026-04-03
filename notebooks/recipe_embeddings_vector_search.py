@@ -43,7 +43,7 @@ def _load_env_config(config_path: str, env_name: str) -> dict[str, str]:
     current_env = ""
     parsed: dict[str, str] = {}
 
-    with open(config_path, "r", encoding="utf-8") as file:
+    with open(config_path, encoding="utf-8") as file:
         for raw_line in file:
             line = raw_line.rstrip()
             if not line or line.lstrip().startswith("#"):
@@ -76,9 +76,7 @@ VECTOR_SEARCH_ENDPOINT = cfg["vector_search_endpoint"]
 EMBEDDING_ENDPOINT = cfg["embedding_endpoint"]
 
 user_email = spark.sql("SELECT current_user() AS user_email").first()["user_email"]
-USER_SUFFIX = (
-    user_email.split("@")[0].replace(".", "_").replace("-", "_")[:20]
-)
+USER_SUFFIX = user_email.split("@")[0].replace(".", "_").replace("-", "_")[:20]
 
 print(f"Environment: {env}")
 print(f"Chunks table: {CHUNKS_TABLE}")
@@ -136,9 +134,7 @@ def _wait_for_endpoint_online(
         time.sleep(20)
 
 
-def _wait_for_index_ready(
-    index: object, timeout_seconds: int = 1200
-) -> tuple[bool, str]:
+def _wait_for_index_ready(index: object, timeout_seconds: int = 1200) -> tuple[bool, str]:
     start = time.time()
     while True:
         if not hasattr(index, "describe"):
@@ -148,9 +144,7 @@ def _wait_for_index_ready(
         ready = _get_nested(details_dict, "status", "ready")
         detailed_state = _get_nested(details_dict, "status", "detailed_state")
         detailed_state_str = (
-            str(detailed_state).upper()
-            if detailed_state is not None
-            else "UNKNOWN"
+            str(detailed_state).upper() if detailed_state is not None else "UNKNOWN"
         )
 
         if ready is True or detailed_state_str in {"ONLINE", "READY"}:
@@ -158,9 +152,7 @@ def _wait_for_index_ready(
             return True, detailed_state_str
 
         if detailed_state_str in {"FAILED", "ERROR"}:
-            raise RuntimeError(
-                f"Vector index failed with state: {detailed_state_str}"
-            )
+            raise RuntimeError(f"Vector index failed with state: {detailed_state_str}")
 
         elapsed = int(time.time() - start)
         if elapsed >= timeout_seconds:
@@ -242,9 +234,7 @@ except Exception as endpoint_exc:
         for token in ["not authorized", "permission", "already exists"]
     ):
         resolved_endpoint = f"{VECTOR_SEARCH_ENDPOINT}_{USER_SUFFIX}"
-        resolved_index = (
-            f"{CATALOG}.{SCHEMA}.parsed_recipe_chunks_vs_index_{USER_SUFFIX}"
-        )
+        resolved_index = f"{CATALOG}.{SCHEMA}.parsed_recipe_chunks_vs_index_{USER_SUFFIX}"
         print(
             "Switching to user-scoped endpoint "
             f"'{resolved_endpoint}' due to access/conflict on "

@@ -34,6 +34,7 @@ print(f"Target table: {TARGET_TABLE}")
 
 # COMMAND ----------
 
+
 def extract_elements_from_parsed(variant_json_str: str) -> list:
     """Parse VARIANT and extract document.elements."""
     try:
@@ -52,10 +53,10 @@ def extract_elements_from_parsed(variant_json_str: str) -> list:
         print(f"Error: {e}")
     return []
 
+
 # Register UDF to extract elements from VARIANT
 extract_elements_udf = F.udf(
-    extract_elements_from_parsed,
-    T.ArrayType(T.MapType(T.StringType(), T.StringType()))
+    extract_elements_from_parsed, T.ArrayType(T.MapType(T.StringType(), T.StringType()))
 )
 
 # COMMAND ----------
@@ -123,7 +124,7 @@ chunks_with_id_df = chunks_df.withColumn(
     F.sha2(
         F.concat_ws("::", F.col("file_path"), F.col("element_id"), F.col("content")),
         256,
-    )
+    ),
 ).withColumn(
     "created_at",
     F.current_timestamp(),

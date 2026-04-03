@@ -27,9 +27,7 @@ class ProjectConfig(BaseModel):
     llm_endpoint: str = Field(..., description="LLM endpoint name")
     embedding_endpoint: str = Field(..., description="Embedding endpoint name")
     warehouse_id: str = Field(..., description="Warehouse ID")
-    vector_search_endpoint: str = Field(
-        ..., description="Vector search endpoint name"
-    )
+    vector_search_endpoint: str = Field(..., description="Vector search endpoint name")
     system_prompt: str = Field(
         default=(
             "You are a sports nutrition recipe assistant that helps users discover "

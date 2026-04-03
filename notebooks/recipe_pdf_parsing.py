@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 try:
     from databricks.sdk import WorkspaceClient
+
     HAS_DATABRICKS_SDK = True
 except ImportError:
     HAS_DATABRICKS_SDK = False
@@ -57,26 +58,29 @@ print(f"Using OUTPUT_DIR: {OUTPUT_DIR}")
 # Function: Discover PDFs
 # Scan the data/ folder and identify all PDF files
 
+
 def discover_pdfs(search_dir: Path) -> list[dict]:
     """
     Discover all PDF files in a directory.
-    
+
     Returns:
         List of dicts with file_name, file_path, file_size_bytes
     """
     pdfs = []
-    
+
     if not search_dir.exists():
         logger.error(f"Directory not found: {search_dir}")
         return pdfs
-    
+
     for pdf_file in sorted(search_dir.glob("*.pdf")):
         file_size = pdf_file.stat().st_size
-        pdfs.append({
-            "file_name": pdf_file.name,
-            "file_path": str(pdf_file.absolute()),
-            "file_size_bytes": file_size,
-        })
+        pdfs.append(
+            {
+                "file_name": pdf_file.name,
+                "file_path": str(pdf_file.absolute()),
+                "file_size_bytes": file_size,
+            }
+        )
 
     # Fallback for Databricks workspace paths where pathlib glob may not see files.
     if not pdfs and str(search_dir).startswith("/Workspace") and HAS_DATABRICKS_SDK:
@@ -113,9 +117,10 @@ def discover_pdfs(search_dir: Path) -> list[dict]:
                 )
         except Exception as exc:
             logger.warning(f"Recursive PDF fallback failed: {exc}")
-    
+
     logger.info(f"Found {len(pdfs)} PDF files")
     return pdfs
+
 
 pdfs = discover_pdfs(PDF_DIR)
 for pdf in pdfs:
@@ -128,6 +133,7 @@ for pdf in pdfs:
 
 try:
     from pyspark.sql import SparkSession
+
     spark = SparkSession.builder.getOrCreate()
     print("✅ SparkSession initialized")
 except Exception as e:
@@ -139,12 +145,13 @@ except Exception as e:
 # Build and execute parsing SQL
 # Use Databricks ai_parse_document to extract text, tables, and structure
 
+
 def build_parse_sql() -> str:
     """Build SQL query using ai_parse_document for PDF parsing."""
     volume_path = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}/raw_pdfs"
-    
+
     sql_query = f"""
-    SELECT 
+    SELECT
         path AS file_path,
         reverse(split(path, '/'))[0] AS file_name,
         ai_parse_document(
@@ -156,8 +163,9 @@ def build_parse_sql() -> str:
         ) AS parsed_result
     FROM read_files('{volume_path}/*.pdf', format => 'binaryFile')
     """
-    
+
     return sql_query
+
 
 # COMMAND ----------
 
@@ -169,18 +177,18 @@ print("\n🔍 Parsing PDFs with Databricks ai_parse_document...\n")
 try:
     sql_query = build_parse_sql()
     logger.info("Executing ai_parse_document SQL query...")
-    
+
     # Execute the query
     parsed_df = spark.sql(sql_query)
-    
+
     # Show results
     print(f"✅ Parsing complete. Found {parsed_df.count()} PDFs processed.\n")
-    
+
     # Display sample
     display_df = parsed_df.select("file_path", "file_name")
     if display_df.count() > 0:
         display_df.show(truncate=False, n=5)
-    
+
     # Save to Delta table
     parsed_table_name = f"{CATALOG}.{SCHEMA}.parsed_recipes_raw"
     (
@@ -189,16 +197,16 @@ try:
         .saveAsTable(parsed_table_name)
     )
     logger.info(f"✅ Results saved to Delta table: {parsed_table_name}")
-    
+
     # Also save a summary CSV
     summary_df = parsed_df.select("file_path", "file_name")
     csv_output = OUTPUT_DIR / "parsing_summary.csv"
     summary_df.toPandas().to_csv(csv_output, index=False)
     logger.info(f"✅ Summary saved to CSV: {csv_output}")
-    
-    print(f"\n📊 Parsing Results:")
+
+    print("\n📊 Parsing Results:")
     print(f"  Total PDFs processed: {parsed_df.count()}")
-    
+
 except Exception as e:
     logger.error(f"❌ Parsing failed: {e}")
     raise

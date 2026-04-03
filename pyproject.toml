@@ -4,7 +4,6 @@ dynamic = ["version"]
 description = "llmops-databricks-course-perslegt - LLMOps Course on Databricks"
 requires-python = ">=3.12, <3.13"
 dependencies = [
-    "cffi==1.17.1",
     "cloudpickle==3.1.1",
     "numpy==2.4.0",
     "pandas==2.3.0",

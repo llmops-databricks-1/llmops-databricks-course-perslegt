@@ -165,9 +165,7 @@ for row in raw_df.fillna("").to_dict(orient="records"):
     )
 
 curated_df = (
-    pd.DataFrame(records)
-    .drop_duplicates(subset=["recipe_id"])
-    .reset_index(drop=True)
+    pd.DataFrame(records).drop_duplicates(subset=["recipe_id"]).reset_index(drop=True)
 )
 print(curated_df.shape)
 curated_df.head(10)
