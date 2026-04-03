@@ -57,6 +57,9 @@ addopts = "-s --no-header --no-summary"
 testpaths = ["tests"]
 pythonpath = ["."]
 
+[tool.uv]
+index-url = "https://pypi.org/simple"
+
 [tool.ruff]
 line-length = 90
 exclude = ["typings/"]
