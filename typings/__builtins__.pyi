@@ -1,4 +1,3 @@
-
 from databricks.sdk.runtime import *
 from pyspark.sql.session import SparkSession
 from pyspark.sql.functions import udf as U
@@ -15,4 +14,3 @@ getArgument = dbutils.widgets.getArgument
 def displayHTML(html): ...
 
 def display(input=None, *args, **kwargs): ...
-

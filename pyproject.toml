@@ -59,6 +59,7 @@ pythonpath = ["."]
 
 [tool.ruff]
 line-length = 90
+exclude = ["typings/"]
 
 [tool.ruff.lint]
 select = [
