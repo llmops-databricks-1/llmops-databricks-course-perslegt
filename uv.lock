@@ -481,6 +481,20 @@ openai = [
 ]
 
 [[package]]
+name = "databricks-vectorsearch"
+version = "0.63"
+source = { registry = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/simple" }
+dependencies = [
+    { name = "deprecation" },
+    { name = "mlflow-skinny" },
+    { name = "protobuf" },
+    { name = "requests" },
+]
+wheels = [
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/43/ab/4d6ba34ff89e326cd867e3d1ccf503a2e826558942a36ab3da34e1970ae7/databricks_vectorsearch-0.63-py3-none-any.whl", hash = "sha256:21d98c6f8fb5c35f2177e0d8f22bc3f2ea354089e41537ff83ad8722a553c713" },
+]
+
+[[package]]
 name = "dataclasses-json"
 version = "0.6.7"
 source = { registry = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/simple" }
@@ -513,6 +527,18 @@ source = { registry = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pyp
 sdist = { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/43/fa/6d96a0978d19e17b68d634497769987b16c8f4cd0a7a05048bec693caa6b/decorator-5.2.1.tar.gz", hash = "sha256:65f266143752f734b0a7cc83c46f4618af75b8c5911b00ccb61d0ac9b6da0360" }
 wheels = [
     { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/4e/8c/f3147f5c4b73e7550fe5f9352eaa956ae838d5c51eb58e7a25b9f3e2643b/decorator-5.2.1-py3-none-any.whl", hash = "sha256:d316bb415a2d9e2d2b3abcc4084c6502fc09240e292cd76a76afc106a1c8e04a" },
+]
+
+[[package]]
+name = "deprecation"
+version = "2.1.0"
+source = { registry = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/simple" }
+dependencies = [
+    { name = "packaging" },
+]
+sdist = { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/5a/d3/8ae2869247df154b64c1884d7346d412fed0c49df84db635aab2d1c40e62/deprecation-2.1.0.tar.gz", hash = "sha256:72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff" }
+wheels = [
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/02/c3/253a89ee03fc9b9682f1541728eb66db7db22148cd94f89ab22528cd1e1b/deprecation-2.1.0-py2.py3-none-any.whl", hash = "sha256:a10811591210e1fb0e768a8c25517cabeabcba6f0bf96564f8ff45189f90b14a" },
 ]
 
 [[package]]
@@ -1288,16 +1314,16 @@ wheels = [
 
 [[package]]
 name = "langchain-openai"
-version = "1.1.12"
+version = "1.1.9"
 source = { registry = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/simple" }
 dependencies = [
     { name = "langchain-core" },
     { name = "openai" },
     { name = "tiktoken" },
 ]
-sdist = { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/cc/fd/7dee16e882c4c1577d48db174d85aa3a0ee09ba61eb6a5d41650285ca80c/langchain_openai-1.1.12.tar.gz", hash = "sha256:ccf5ef02c896f6807b4d0e51aaf678a72ce81ae41201cae8d65e11eeff9ecb79" }
+sdist = { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/49/ae/1dbeb49ab8f098f78ec52e21627e705e5d7c684dc8826c2c34cc2746233a/langchain_openai-1.1.9.tar.gz", hash = "sha256:fdee25dcf4b0685d8e2f59856f4d5405431ef9e04ab53afe19e2e8360fed8234" }
 wheels = [
-    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/6e/a6/68fb22e3604015e6f546fa1d3677d24378b482855ae74710cbf4aec44132/langchain_openai-1.1.12-py3-none-any.whl", hash = "sha256:da71ca3f2d18c16f7a2443cc306aa195ad2a07054335ac9b0626dcae02b6a0c5" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/52/a1/8a20d19f69d022c10d34afa42d972cc50f971b880d0eb4a828cf3dd824a8/langchain_openai-1.1.9-py3-none-any.whl", hash = "sha256:ca2482b136c45fb67c0db84a9817de675e0eb8fb2203a33914c1b7a96f273940" },
 ]
 
 [[package]]
@@ -1349,9 +1375,12 @@ source = { editable = "." }
 dependencies = [
     { name = "cloudpickle" },
     { name = "databricks-sdk" },
+    { name = "databricks-vectorsearch" },
     { name = "loguru" },
     { name = "numpy" },
+    { name = "openai" },
     { name = "pandas" },
+    { name = "psycopg", extra = ["binary"] },
     { name = "pyarrow" },
     { name = "pydantic" },
 ]
@@ -1375,13 +1404,16 @@ requires-dist = [
     { name = "cloudpickle", specifier = "==3.1.1" },
     { name = "databricks-connect", marker = "extra == 'dev'", specifier = ">=17.0,<18" },
     { name = "databricks-sdk", specifier = "==0.85.0" },
+    { name = "databricks-vectorsearch", specifier = "==0.63" },
     { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29.5,<7" },
     { name = "loguru", specifier = "==0.7.3" },
     { name = "numpy", specifier = "==2.4.0" },
+    { name = "openai", specifier = "==2.8.0" },
     { name = "pandas", specifier = "==2.3.0" },
     { name = "pip", marker = "extra == 'dev'", specifier = ">=25.0.1,<26" },
     { name = "pre-commit", marker = "extra == 'ci'", specifier = ">=4.1.0,<5" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.1.0,<5" },
+    { name = "psycopg", extras = ["binary"], specifier = "==3.3.2" },
     { name = "pyarrow", specifier = "==22.0.0" },
     { name = "pydantic", specifier = "==2.11.7" },
     { name = "pytest", marker = "extra == 'ci'", specifier = ">=8.3.4,<9" },
@@ -1666,7 +1698,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "2.30.0"
+version = "2.8.0"
 source = { registry = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1678,9 +1710,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/88/15/52580c8fbc16d0675d516e8749806eda679b16de1e4434ea06fb6feaa610/openai-2.30.0.tar.gz", hash = "sha256:92f7661c990bda4b22a941806c83eabe4896c3094465030dd882a71abe80c885" }
+sdist = { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/04/0c/b9321e12f89e236f5e9a46346c30fb801818e22ba33b798a5aca84be895c/openai-2.8.0.tar.gz", hash = "sha256:4851908f6d6fcacbd47ba659c5ac084f7725b752b6bfa1e948b6fbfc111a6bad" }
 wheels = [
-    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/2a/9e/5bfa2270f902d5b92ab7d41ce0475b8630572e71e349b2a4996d14bdda93/openai-2.30.0-py3-none-any.whl", hash = "sha256:9a5ae616888eb2748ec5e0c5b955a51592e0b201a11f4262db920f2a78c5231d" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/5b/e1/0a6560bab7fb7b5a88d35a505b859c6d969cb2fa2681b568eb5d95019dec/openai-2.8.0-py3-none-any.whl", hash = "sha256:ba975e347f6add2fe13529ccb94d54a578280e960765e5224c34b08d7e029ddf" },
 ]
 
 [[package]]
@@ -1960,6 +1992,42 @@ wheels = [
     { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/04/78/0acd37ca84ce3ddffaa92ef0f571e073faa6d8ff1f0559ab1272188ea2be/psutil-7.2.2-cp36-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:b58fabe35e80b264a4e3bb23e6b96f9e45a3df7fb7eed419ac0e5947c61e47cc" },
     { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/b4/90/e2159492b5426be0c1fef7acba807a03511f97c5f86b3caeda6ad92351a7/psutil-7.2.2-cp37-abi3-win_amd64.whl", hash = "sha256:eb7e81434c8d223ec4a219b5fc1c47d0417b12be7ea866e24fb5ad6e84b3d988" },
     { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/8c/c7/7bb2e321574b10df20cbde462a94e2b71d05f9bbda251ef27d104668306a/psutil-7.2.2-cp37-abi3-win_arm64.whl", hash = "sha256:8c233660f575a5a89e6d4cb65d9f938126312bca76d8fe087b947b3a1aaac9ee" },
+]
+
+[[package]]
+name = "psycopg"
+version = "3.3.2"
+source = { registry = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/simple" }
+dependencies = [
+    { name = "typing-extensions" },
+    { name = "tzdata", marker = "sys_platform == 'win32'" },
+]
+sdist = { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/e0/1a/7d9ef4fdc13ef7f15b934c393edc97a35c281bb7d3c3329fbfcbe915a7c2/psycopg-3.3.2.tar.gz", hash = "sha256:707a67975ee214d200511177a6a80e56e654754c9afca06a7194ea6bbfde9ca7" }
+wheels = [
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/8c/51/2779ccdf9305981a06b21a6b27e8547c948d85c41c76ff434192784a4c93/psycopg-3.3.2-py3-none-any.whl", hash = "sha256:3e94bc5f4690247d734599af56e51bae8e0db8e4311ea413f801fef82b14a99b" },
+]
+
+[package.optional-dependencies]
+binary = [
+    { name = "psycopg-binary", marker = "implementation_name != 'pypy'" },
+]
+
+[[package]]
+name = "psycopg-binary"
+version = "3.3.2"
+source = { registry = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/simple" }
+wheels = [
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/4e/1e/8614b01c549dd7e385dacdcd83fe194f6b3acb255a53cc67154ee6bf00e7/psycopg_binary-3.3.2-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:a9387ab615f929e71ef0f4a8a51e986fa06236ccfa9f3ec98a88f60fbf230634" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/26/97/0bb093570fae2f4454d42c1ae6000f15934391867402f680254e4a7def54/psycopg_binary-3.3.2-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:3ff7489df5e06c12d1829544eaec64970fe27fe300f7cf04c8495fe682064688" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/61/20/1d9383e3f2038826900a14137b0647d755f67551aab316e1021443105ed5/psycopg_binary-3.3.2-cp312-cp312-manylinux2014_ppc64le.manylinux_2_17_ppc64le.whl", hash = "sha256:9742580ecc8e1ac45164e98d32ca6df90da509c2d3ff26be245d94c430f92db4" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/a6/62/513c80ad8bbb545e364f7737bf2492d34a4c05eef4f7b5c16428dc42260d/psycopg_binary-3.3.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:d45acedcaa58619355f18e0f42af542fcad3fd84ace4b8355d3a5dea23318578" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/f3/28/ddf5f5905f088024bccb19857949467407c693389a14feb527d6171d8215/psycopg_binary-3.3.2-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:d88f32ff8c47cb7f4e7e7a9d1747dcee6f3baa19ed9afa9e5694fd2fb32b61ed" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/6e/93/a1157ebcc650960b264542b547f7914d87a42ff0cc15a7584b29d5807e6b/psycopg_binary-3.3.2-cp312-cp312-manylinux_2_38_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:59d0163c4617a2c577cb34afbed93d7a45b8c8364e54b2bd2020ff25d5f5f860" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/0e/27/65939ba6798f9c5be4a5d9cd2061ebaf0851798525c6811d347821c8132d/psycopg_binary-3.3.2-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:e750afe74e6c17b2c7046d2c3e3173b5a3f6080084671c8aa327215323df155b" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/8a/c4/5e9e4b9b1c1e27026e43387b0ba4aaf3537c7806465dd3f1d5bde631752a/psycopg_binary-3.3.2-cp312-cp312-musllinux_1_2_ppc64le.whl", hash = "sha256:f26f113013c4dcfbfe9ced57b5bad2035dda1a7349f64bf726021968f9bccad3" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/c6/81/cf43fb76993190cee9af1cbcfe28afb47b1928bdf45a252001017e5af26e/psycopg_binary-3.3.2-cp312-cp312-musllinux_1_2_riscv64.whl", hash = "sha256:8309ee4569dced5e81df5aa2dcd48c7340c8dee603a66430f042dfbd2878edca" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/9d/20/c6377a0d17434674351627489deca493ea0b137c522b99c81d3a106372c8/psycopg_binary-3.3.2-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:c6464150e25b68ae3cb04c4e57496ea11ebfaae4d98126aea2f4702dd43e3c12" },
+    { url = "https://artifactory.insim.biz/artifactory/api/pypi/nn-pypi-remote/packages/packages/25/32/716c57b28eefe02a57a4c9d5bf956849597f5ea476c7010397199e56cfde/psycopg_binary-3.3.2-cp312-cp312-win_amd64.whl", hash = "sha256:716a586f99bbe4f710dc58b40069fcb33c7627e95cc6fc936f73c9235e07f9cf" },
 ]
 
 [[package]]
