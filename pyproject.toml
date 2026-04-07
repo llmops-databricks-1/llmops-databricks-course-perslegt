@@ -4,7 +4,6 @@ dynamic = ["version"]
 description = "llmops-databricks-course-perslegt - LLMOps Course on Databricks"
 requires-python = ">=3.12, <3.13"
 dependencies = [
-    "cffi==1.17.1",
     "cloudpickle==3.1.1",
     "numpy==2.4.0",
     "pandas==2.3.0",
@@ -12,17 +11,17 @@ dependencies = [
     "databricks-sdk==0.85.0",
     "pydantic==2.11.7",
     "loguru==0.7.3",
-    "python-dotenv==1.1.1",
+    # "python-dotenv==1.1.1",
     "databricks-vectorsearch==0.63",
     "openai==2.8.0",
-    "databricks-mcp==0.4.0",
-    "backoff==2.2.1",
-    "mlflow==3.8.1",
-    "nest-asyncio==1.6.0",
-    "arxiv==2.3.1",
-    "databricks-agents==1.8.2",
-    "psycopg==3.3.2",
-    "psycopg-pool==3.3.0",
+    # "databricks-mcp==0.4.0",
+    # "backoff==2.2.1",
+    # "mlflow==3.8.1",
+    # "nest-asyncio==1.6.0",
+    # "arxiv==2.3.1",
+    # "databricks-agents==1.8.2",
+    # "psycopg==3.3.2",
+    # "psycopg-pool==3.3.0",
     "psycopg[binary]==3.3.2"
 ]
 
@@ -40,7 +39,7 @@ ci = ["pre-commit>=4.1.0, <5",
 include-package-data = true
 
 [tool.setuptools.package-data]
-"your_custom_package" = ["../../../project_config.yml"]
+"recipe_curator" = ["../../../project_config.yml"]
 
 [build-system]
 requires = ["setuptools>=72.0"]
@@ -48,7 +47,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["your_custom_package*"]
+include = ["recipe_curator*"]
 
 [tool.setuptools.dynamic]
 version = { file = "version.txt" }
@@ -58,9 +57,14 @@ addopts = "-s --no-header --no-summary"
 testpaths = ["tests"]
 pythonpath = ["."]
 
+[tool.uv]
+index-url = "https://pypi.org/simple"
+
 [tool.ruff]
 line-length = 90
+exclude = ["typings/"]
 
+[tool.ruff.lint]
 select = [
     "F",    # pyflakes rules
     "E",    # pycodestyle error rules
